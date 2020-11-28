@@ -192,15 +192,16 @@ def main():
                 person = "Person #" + str(person_id[count])
                 cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 1)
                 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-                cv2.rectangle(frame, (x+1, y+1), (x+100, y+30), (100, 0, 0), -1)
+                cv2.rectangle(frame, (x+1, y+1), (x+103, y+30), (100, 0, 0), -1)
                 cv2.putText(frame, person, (x+2, y + 20), font, .8, (0, 255, 0), 1, cv2.LINE_AA)
                 count += 1
         for x, y, w, h in mask_box_coord:
             if x is not None and y is not None and w is not None and h is not None:
                 cv2.rectangle(frame, (x, y), (w, h), (rand1, rand2, rand3), 1)
-        #     font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-        # cv2.putText(frame, gender, (x1, y1 + 20), font, .8,
-        #             (255, 255, 255), 1, cv2.LINE_AA)
+                font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+                cv2.rectangle(frame, (x + 1, y + 1), (x + 107, y + 30), (100, 0, 0), -1)
+                cv2.putText(frame, "Face cover", (x + 2, y + 20), font, .8, (0, 255, 0), 1, cv2.LINE_AA)
+
 
         # Show the frame
         cv2.imshow('Aws rekognition PPe detection demo', frame)
