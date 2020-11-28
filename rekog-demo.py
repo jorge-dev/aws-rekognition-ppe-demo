@@ -23,13 +23,15 @@ rand1 = randrange(256)
 rand2 = randrange(256)
 rand3 = randrange(256)
 # Image details global data as currently only one face is supported
-x1 = None
-x2 = None
-y1 = None
-y2 = None
+x1 = 0
+x2 = 0
+y1 = 0
+y2 = 0
 ppe = None
 confidence = None
 person_box_coord = []
+mask_box_coord = []
+person_id = []
 
 ''' 
 Function to send frame to Aws recognition
@@ -88,10 +90,14 @@ def get_data(response):
     global ppe
     global confidence
     global person_box_coord
+    global mask_box_coord
+    global person_id
 
     # Get the faces
     ppe_response = response
+    person_id = []
     person_box = []
+    mask_box = []
     person_body_parts = []
 
     # Check if
@@ -100,15 +106,33 @@ def get_data(response):
 
         for person in people:
             person_box.append(person['BoundingBox'])
+            person_id.append(person['Id'])
             person_body_parts.append(person['BodyParts'])
 
-        print (person_body_parts, "\n")
+        for i, item in enumerate(person_body_parts):
+
+            for q in item:
+
+                for t in q['EquipmentDetections']:
+                    mask_box.append(t['BoundingBox'])
+
+
+
+
 
 
     else:
         print('No person Found')
+    # print(mask_box)
 
-
+    mask_box_coord = []
+    for box in mask_box:
+        x1 = int(box['Left'] * width)
+        y1 = int(box['Top'] * height)
+        x2 = int(box['Left'] * width + box['Width'] * width)
+        y2 = int(box['Top'] * height + box['Height'] * height)
+        temp = [x1, y1, x2, y2]
+        mask_box_coord.append(temp)
 
     # get the face bounding box
     person_box_coord = []
@@ -161,13 +185,22 @@ def main():
 
         # if we have data, we draw it
         # print(gender)
+        count = 0
         for x, y, w, h in person_box_coord:
             if x is not None and y is not None and w is not None and h is not None:
-                cv2.rectangle(frame, (x - 3, y - 3), (w + 3, h + 3), (rand1, rand2, rand3), 1)
+
+                person = "Person #" + str(person_id[count])
+                cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 1)
+                font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+                cv2.rectangle(frame, (x+1, y+1), (x+100, y+30), (100, 0, 0), -1)
+                cv2.putText(frame, person, (x+2, y + 20), font, .8, (0, 255, 0), 1, cv2.LINE_AA)
+                count += 1
+        for x, y, w, h in mask_box_coord:
+            if x is not None and y is not None and w is not None and h is not None:
+                cv2.rectangle(frame, (x, y), (w, h), (rand1, rand2, rand3), 1)
         #     font = cv2.FONT_HERSHEY_COMPLEX_SMALL
         # cv2.putText(frame, gender, (x1, y1 + 20), font, .8,
         #             (255, 255, 255), 1, cv2.LINE_AA)
-
 
         # Show the frame
         cv2.imshow('Aws rekognition PPe detection demo', frame)
