@@ -1,0 +1,34 @@
+{
+  "resources": [
+    {
+      "name": "default-role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::246828569648:role/rekogDemo-dev",
+      "role_name": "rekogDemo-dev"
+    },
+    {
+      "name": "handler",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:246828569648:function:rekogDemo-dev-handler"
+    },
+    {
+      "name": "handler-s3event",
+      "resource_type": "s3_event",
+      "bucket": "image-rekognition-s3",
+      "lambda_arn": "arn:aws:lambda:us-east-1:246828569648:function:rekogDemo-dev-handler"
+    },
+    {
+      "name": "api_handler",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:246828569648:function:rekogDemo-dev"
+    },
+    {
+      "name": "rest_api",
+      "resource_type": "rest_api",
+      "rest_api_id": "mn0snces4i",
+      "rest_api_url": "https://mn0snces4i.execute-api.us-east-1.amazonaws.com/api/"
+    }
+  ],
+  "schema_version": "2.0",
+  "backend": "api"
+}
