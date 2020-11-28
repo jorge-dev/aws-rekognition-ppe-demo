@@ -136,12 +136,12 @@ def get_data(response):
 
     # get the face bounding box
     person_box_coord = []
-    for box in person_box:
+    for i, box in enumerate(person_box):
         x1 = int(box['Left'] * width)
         y1 = int(box['Top'] * height)
         x2 = int(box['Left'] * width + box['Width'] * width)
         y2 = int(box['Top'] * height + box['Height'] * height)
-        temp = [x1, y1, x2, y2]
+        temp = [i, x1, y1, x2, y2]
         person_box_coord.append(temp)
 
     # print("Bounding box =  ", person_box_coord)
@@ -186,21 +186,21 @@ def main():
         # if we have data, we draw it
         # print(gender)
         count = 0
-        for x, y, w, h in person_box_coord:
+        for i, x, y, w, h in person_box_coord:
             if x is not None and y is not None and w is not None and h is not None:
 
-                person = "Person #" + str(person_id[count])
-                cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 1)
+                person = "Person #" + str(person_id[i])
+                cv2.rectangle(frame, (x, y), (w, h), (0, 0, 0), 1)
                 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-                cv2.rectangle(frame, (x+1, y+1), (x+103, y+30), (100, 0, 0), -1)
-                cv2.putText(frame, person, (x+2, y + 20), font, .8, (0, 255, 0), 1, cv2.LINE_AA)
-                count += 1
+                cv2.rectangle(frame, (x+1, y+1), (x+103, y+30), (0, 0, 0), -1)
+                cv2.putText(frame, person, (x+8, y + 20), font, .7, (255, 255, 255), 1, cv2.LINE_AA)
+                # count += 1
         for x, y, w, h in mask_box_coord:
             if x is not None and y is not None and w is not None and h is not None:
-                cv2.rectangle(frame, (x, y), (w, h), (rand1, rand2, rand3), 1)
+                cv2.rectangle(frame, (x, y), (w, h), (29, 171, 34), 2)
                 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-                cv2.rectangle(frame, (x + 1, y + 1), (x + 107, y + 30), (100, 0, 0), -1)
-                cv2.putText(frame, "Face cover", (x + 2, y + 20), font, .8, (0, 255, 0), 1, cv2.LINE_AA)
+                cv2.rectangle(frame, (x + 1, y + 1), (x + 107, y + 30), (29, 171, 34), -1)
+                cv2.putText(frame, "Face cover", (x + 8, y + 20), font, .7, (255, 255, 255), 1, cv2.LINE_AA)
 
 
         # Show the frame
