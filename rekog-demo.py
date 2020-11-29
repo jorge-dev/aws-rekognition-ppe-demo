@@ -31,7 +31,10 @@ ppe = None
 confidence = None
 person_box_coord = []
 mask_box_coord = []
+hand_cover_box_coord = []
+head_cover_box_coord = []
 person_id = []
+
 
 ''' 
 Function to send frame to Aws recognition
@@ -92,13 +95,18 @@ def get_data(response):
     global person_box_coord
     global mask_box_coord
     global person_id
+    global hand_cover_box_coord
+    global head_cover_box_coord
 
     # Get the faces
     ppe_response = response
     person_id = []
     person_box = []
     mask_box = []
+    hand_cover_box = []
+    head_cover_box = []
     person_body_parts = []
+    eq_detec = []
 
     # Check if
     if 'Persons' in ppe_response and len(ppe_response['Persons']) >= 1:
@@ -112,18 +120,40 @@ def get_data(response):
         for i, item in enumerate(person_body_parts):
 
             for q in item:
+                if q['Name'] == 'FACE':
+                    for t in q['EquipmentDetections']:
+                        mask_box.append(t['BoundingBox'])
 
-                for t in q['EquipmentDetections']:
-                    mask_box.append(t['BoundingBox'])
+                if q['Name'] == 'LEFT_HAND' or q['Name'] == 'RIGHT_HAND':
+                    for t in q['EquipmentDetections']:
+                        hand_cover_box.append(t['BoundingBox'])
 
+                if q['Name'] == 'HEAD':
+                    for t in q['EquipmentDetections']:
+                        head_cover_box.append(t['BoundingBox'])
 
-
-
-
-
+        print(person_body_parts)
     else:
         print('No person Found')
     # print(mask_box)
+
+    hand_cover_box_coord = []
+    for box in hand_cover_box:
+        x1 = int(box['Left'] * width)
+        y1 = int(box['Top'] * height)
+        x2 = int(box['Left'] * width + box['Width'] * width)
+        y2 = int(box['Top'] * height + box['Height'] * height)
+        temp = [x1, y1, x2, y2]
+        hand_cover_box_coord.append(temp)
+
+    head_cover_box_coord = []
+    for box in head_cover_box:
+        x1 = int(box['Left'] * width)
+        y1 = int(box['Top'] * height)
+        x2 = int(box['Left'] * width + box['Width'] * width)
+        y2 = int(box['Top'] * height + box['Height'] * height)
+        temp = [x1, y1, x2, y2]
+        head_cover_box_coord.append(temp)
 
     mask_box_coord = []
     for box in mask_box:
@@ -184,8 +214,7 @@ def main():
         frame_count += 1
 
         # if we have data, we draw it
-        # print(gender)
-        count = 0
+
         for i, x, y, w, h in person_box_coord:
             if x is not None and y is not None and w is not None and h is not None:
 
@@ -194,13 +223,27 @@ def main():
                 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
                 cv2.rectangle(frame, (x+1, y+1), (x+103, y+30), (0, 0, 0), -1)
                 cv2.putText(frame, person, (x+8, y + 20), font, .7, (255, 255, 255), 1, cv2.LINE_AA)
-                # count += 1
+
         for x, y, w, h in mask_box_coord:
             if x is not None and y is not None and w is not None and h is not None:
                 cv2.rectangle(frame, (x, y), (w, h), (29, 171, 34), 2)
                 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
                 cv2.rectangle(frame, (x + 1, y + 1), (x + 107, y + 30), (29, 171, 34), -1)
                 cv2.putText(frame, "Face cover", (x + 8, y + 20), font, .7, (255, 255, 255), 1, cv2.LINE_AA)
+
+        for x, y, w, h in head_cover_box_coord:
+            if x is not None and y is not None and w is not None and h is not None:
+                cv2.rectangle(frame, (x, y), (w, h), (29, 171, 34), 2)
+                font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+                cv2.rectangle(frame, (x + 1, y + 1), (x + 107, y + 30), (29, 171, 34), -1)
+                cv2.putText(frame, "Head cover", (x + 8, y + 20), font, .7, (255, 255, 255), 1, cv2.LINE_AA)
+
+        for x, y, w, h in hand_cover_box_coord:
+            if x is not None and y is not None and w is not None and h is not None:
+                cv2.rectangle(frame, (x, y), (w, h), (29, 171, 34), 2)
+                font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+                cv2.rectangle(frame, (x + 1, y + 1), (x + 107, y + 30), (29, 171, 34), -1)
+                cv2.putText(frame, "Hand cover", (x + 8, y + 20), font, .7, (255, 255, 255), 1, cv2.LINE_AA)
 
 
         # Show the frame
